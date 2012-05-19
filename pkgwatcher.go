@@ -1,7 +1,5 @@
 // Package pkgwatcher allows for watching for changes in packages or
 // their dependencies.
-// BUG(naitik): This implementation may not be thread safe because of
-// how it uses maps.
 package pkgwatcher
 
 import (
@@ -12,7 +10,7 @@ import (
 	"path/filepath"
 )
 
-// Add's a build.Package to the file change event.
+// File level changes including the package that contains it.
 type Event struct {
 	*fsnotify.FileEvent
 	Package *build.Package
@@ -127,7 +125,6 @@ func (w *Watcher) Close() error {
 // Find's the best guess for the container package.
 func (w *Watcher) findPackage(file string) (pkg *build.Package) {
 	for file != "." && file != "/" {
-		fmt.Print("finding parent: " + file)
 		pkg = w.DirPackages[file]
 		if pkg != nil {
 			return pkg
