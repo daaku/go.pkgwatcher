@@ -109,7 +109,7 @@ func (w *Watcher) WatchDirectory(dir string) {
 		}
 		err = w.fsnotify.Watch(path)
 		if err != nil {
-			w.Error <- err
+			w.Error <- fmt.Errorf("Error watching %s: %s", path, err)
 		}
 		w.watchedDirectories[path] = true
 		return nil
