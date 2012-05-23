@@ -54,18 +54,18 @@ func NewWatcher(importPaths []string, wd string) (w *Watcher, err error) {
 	go w.proxyEvent()
 	go func() {
 		for _, p := range importPaths {
-			w.WatchImportPath(p)
+			w.WatchImportPath(p, false)
 		}
 	}()
 	return w, nil
 }
 
 // Watch import paths.
-func (w *Watcher) WatchImportPath(importPath string) {
+func (w *Watcher) WatchImportPath(importPath string, force bool) {
 	if importPath == "C" {
 		return
 	}
-	if w.Packages[importPath] != nil {
+	if !force && w.Packages[importPath] != nil {
 		return
 	}
 	pkg, err := build.Import(importPath, w.workingDirectory, build.AllowBinary)
@@ -77,7 +77,7 @@ func (w *Watcher) WatchImportPath(importPath string) {
 	w.Packages[pkg.ImportPath] = pkg
 	w.DirPackages[pkg.Dir] = pkg
 	for _, path := range pkg.Imports {
-		w.WatchImportPath(path)
+		w.WatchImportPath(path, false)
 	}
 	for _, pkg := range w.Packages {
 		w.WatchDirectory(pkg.Dir)
